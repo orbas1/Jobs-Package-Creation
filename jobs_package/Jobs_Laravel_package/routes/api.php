@@ -14,8 +14,11 @@ Route::middleware(['api'])->group(function () {
     Route::apiResource('jobs', JobController::class)->except(['create', 'edit']);
     Route::apiResource('applications', ApplicationController::class)->only(['index', 'store', 'update']);
 
+    Route::post('jobs/{job}/applications', [ApplicationController::class, 'storeForJob']);
+
     Route::get('ats/stages', [AtsController::class, 'stages']);
     Route::post('applications/{jobApplication}/ats/move', [AtsController::class, 'move']);
+    Route::get('jobs/{job}/pipeline', [AtsController::class, 'pipeline']);
 
     Route::get('jobs/{job}/screening', [ScreeningController::class, 'questions']);
     Route::post('jobs/{job}/screening', [ScreeningController::class, 'storeQuestion']);

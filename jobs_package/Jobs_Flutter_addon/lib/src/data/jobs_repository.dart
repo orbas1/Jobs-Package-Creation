@@ -9,6 +9,7 @@ class JobsRepository {
   Future<List<Job>> fetchJobs({String? query}) async {
     final payload = await _apiClient.getJson('/api/jobs', query: {
       if (query != null) 'search': query,
+      'per_page': '50',
     });
     final list = payload['data'] as List<dynamic>? ?? [];
     return list.map((job) => Job.fromJson(job as Map<String, dynamic>)).toList();
@@ -16,7 +17,8 @@ class JobsRepository {
 
   Future<Job> fetchJob(int id) async {
     final payload = await _apiClient.getJson('/api/jobs/$id');
-    return Job.fromJson(payload['data'] as Map<String, dynamic>);
+    final data = payload['data'] ?? payload;
+    return Job.fromJson(data as Map<String, dynamic>);
   }
 
   Future<JobApplication> apply({
@@ -26,21 +28,25 @@ class JobsRepository {
     CvDocument? cv,
     CoverLetter? coverLetter,
   }) async {
-    final payload = await _apiClient.postJson('/api/jobs/$jobId/applications',
-        body: {
-          'candidate': candidate.toJson(),
-          'answers': answers.map((answer) => answer.toJson()).toList(),
-          'cv': cv?.toJson(),
-          'cover_letter': coverLetter?.toJson(),
-        });
-    return JobApplication.fromJson(payload['data'] as Map<String, dynamic>);
+    final payload = await _apiClient.postJson('/api/applications', body: {
+      'job_id': jobId,
+      'candidate_id': candidate.id,
+      'cover_letter_id': coverLetter?.id,
+      'cv_template_id': cv?.id,
+      'resume_path': cv?.url,
+      'notes': candidate.summary,
+      'answers': answers.map((answer) => answer.toJson()).toList(),
+    });
+    final data = payload['data'] ?? payload;
+    return JobApplication.fromJson(data as Map<String, dynamic>);
   }
 
   Future<List<JobApplication>> fetchApplications({int? companyId}) async {
     final payload = await _apiClient.getJson('/api/applications', query: {
       if (companyId != null) 'company_id': '$companyId',
+      'per_page': '50',
     });
-    final list = payload['data'] as List<dynamic>? ?? [];
+    final list = (payload['data'] ?? payload) as List<dynamic>? ?? [];
     return list
         .map((app) => JobApplication.fromJson(app as Map<String, dynamic>))
         .toList();
@@ -51,15 +57,16 @@ class JobsRepository {
     required int stageId,
   }) async {
     final payload = await _apiClient.postJson(
-      '/api/applications/$applicationId/stage',
+      '/api/applications/$applicationId/ats/move',
       body: {'stage_id': stageId},
     );
-    return JobApplication.fromJson(payload['data'] as Map<String, dynamic>);
+    final data = payload['data'] ?? payload;
+    return JobApplication.fromJson(data as Map<String, dynamic>);
   }
 
   Future<AtsPipeline> fetchPipeline(int jobId) async {
     final payload = await _apiClient.getJson('/api/jobs/$jobId/pipeline');
-    return AtsPipeline.fromJson(payload['data'] as Map<String, dynamic>);
+    return AtsPipeline.fromJson(payload as Map<String, dynamic>);
   }
 
   Future<InterviewSchedule> scheduleInterview({
