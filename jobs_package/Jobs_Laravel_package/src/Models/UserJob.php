@@ -12,6 +12,8 @@ class UserJob extends Model
     protected $fillable = [
         'user_id',
         'opening_id',
+        'stage_id',
+        'status',
         'seen_at',
         'is_hired',
         'meta',
@@ -26,6 +28,11 @@ class UserJob extends Model
     public function opening(): BelongsTo
     {
         return $this->belongsTo(Opening::class, 'opening_id');
+    }
+
+    public function stage(): BelongsTo
+    {
+        return $this->belongsTo(AtsStage::class, 'stage_id');
     }
 
     public function user(): BelongsTo

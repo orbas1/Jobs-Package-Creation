@@ -11,16 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('userjobs', function (Blueprint $table) {
+        Schema::create('opening_skill_tag', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('opening_id')->constrained('openings')->cascadeOnDelete();
-            $table->foreignId('stage_id')->nullable()->constrained('ats_stages')->nullOnDelete();
-            $table->string('status')->default('applied');
-            $table->dateTime('seen_at')->nullable();
-            $table->boolean('is_hired')->default(0);
-            $table->text('meta')->nullable(); //json array
+            $table->foreignId('skill_tag_id')->constrained('skill_tags')->cascadeOnDelete();
             $table->timestamps();
+
+            $table->unique(['opening_id', 'skill_tag_id']);
         });
     }
 
@@ -29,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('userjobs');
+        Schema::dropIfExists('opening_skill_tag');
     }
 };

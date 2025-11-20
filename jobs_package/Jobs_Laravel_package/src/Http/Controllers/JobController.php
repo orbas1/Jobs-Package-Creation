@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use JobsLaravelPackage\Models\Category;
 use JobsLaravelPackage\Models\JobBookmark;
 use JobsLaravelPackage\Models\Opening;
+use JobsLaravelPackage\Models\AtsStage;
+use JobsLaravelPackage\Models\SkillTag;
 use JobsLaravelPackage\Models\UserJob;
 
 class JobController extends Controller
@@ -16,7 +18,7 @@ class JobController extends Controller
     public function index(Request $request)
     {
         $openings = Opening::query()
-            ->with(['categories', 'primaryCategory'])
+            ->with(['categories', 'primaryCategory', 'skillTags'])
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where('title', 'like', '%' . $request->string('search') . '%')
                     ->orWhere('short_description', 'like', '%' . $request->string('search') . '%');
@@ -24,6 +26,11 @@ class JobController extends Controller
             ->when($request->filled('category'), function ($query) use ($request) {
                 $query->whereHas('categories', function ($relation) use ($request) {
                     $relation->where('slug', $request->string('category'));
+                });
+            })
+            ->when($request->filled('skill'), function ($query) use ($request) {
+                $query->whereHas('skillTags', function ($relation) use ($request) {
+                    $relation->where('slug', $request->string('skill'));
                 });
             })
             ->when($request->filled('type'), fn ($query) => $query->where('type', $request->string('type')))
@@ -35,13 +42,14 @@ class JobController extends Controller
         return view('jobs::jobs.index', [
             'openings' => $openings,
             'categories' => Category::query()->where('type', 'job_category')->get(),
-            'filters' => $request->only(['search', 'category', 'type', 'featured']),
+            'skillTags' => SkillTag::query()->orderBy('name')->get(),
+            'filters' => $request->only(['search', 'category', 'type', 'featured', 'skill']),
         ]);
     }
 
     public function show(Opening $job)
     {
-        $job->load(['categories', 'primaryCategory', 'locations']);
+        $job->load(['categories', 'primaryCategory', 'locations', 'skillTags']);
         $job->increment('total_visits');
 
         return view('jobs::jobs.show', [
@@ -75,7 +83,7 @@ class JobController extends Controller
             abort(403, 'Authentication required to apply.');
         }
 
-        UserJob::updateOrCreate(
+        $application = UserJob::updateOrCreate(
             [
                 'user_id' => $user->getAuthIdentifier(),
                 'opening_id' => $job->getKey(),
@@ -87,6 +95,18 @@ class JobController extends Controller
                 ],
             ]
         );
+
+        if (config('jobs.features.ats')) {
+            $defaultStage = $job->stages()->where('is_default', true)->orderBy('position')->first()
+                ?? AtsStage::defaultStage();
+
+            if ($defaultStage) {
+                $application->update([
+                    'stage_id' => $defaultStage->getKey(),
+                    'status' => $defaultStage->slug,
+                ]);
+            }
+        }
 
         return redirect()
             ->route('jobs.show', $job)

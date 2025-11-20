@@ -13,6 +13,8 @@ class DatabaseSeeder extends Seeder
             LocationsTableSeeder::class,
             ExpertLevelsTableSeeder::class,
             QualificationsTableSeeder::class,
+            AtsStagesTableSeeder::class,
+            SkillTagsTableSeeder::class,
         ]);
     }
 }

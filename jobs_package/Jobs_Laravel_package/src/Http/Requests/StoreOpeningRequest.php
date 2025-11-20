@@ -17,7 +17,7 @@ class StoreOpeningRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
             'short_description' => ['required', 'string', 'max:500'],
-            'category_id' => ['required', 'integer'],
+            'category_id' => ['required', 'integer', 'exists:categories,id'],
             'type' => ['required', 'string', 'max:100'],
             'salary_type' => ['required', 'string', 'max:100'],
             'salary_range' => ['nullable', 'string', 'max:255'],
@@ -34,9 +34,11 @@ class StoreOpeningRequest extends FormRequest
             'meta' => ['nullable', 'array'],
             'expired_at' => ['nullable', 'date'],
             'categories' => ['nullable', 'array'],
-            'categories.*' => ['integer'],
+            'categories.*' => ['integer', 'exists:categories,id'],
             'locations' => ['nullable', 'array'],
-            'locations.*' => ['integer'],
+            'locations.*' => ['integer', 'exists:locations,id'],
+            'skill_tags' => ['nullable', 'array', 'max:' . config('jobs.limits.max_skill_tags')],
+            'skill_tags.*' => ['integer', 'exists:skill_tags,id'],
         ];
     }
 }

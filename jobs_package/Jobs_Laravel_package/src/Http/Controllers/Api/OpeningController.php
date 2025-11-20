@@ -14,7 +14,7 @@ class OpeningController extends Controller
 {
     public function index(): JsonResponse
     {
-        $openings = Opening::with(['categories', 'locations', 'primaryCategory'])
+        $openings = Opening::with(['categories', 'locations', 'primaryCategory', 'skillTags'])
             ->latest()
             ->paginate(config('jobs.pagination'));
 
@@ -31,14 +31,19 @@ class OpeningController extends Controller
             'user_id' => $request->user()->getAuthIdentifier(),
         ]);
 
-        $this->syncRelations($opening, $request->input('categories', []), $request->input('locations', []));
+        $this->syncRelations(
+            $opening,
+            $request->input('categories', []),
+            $request->input('locations', []),
+            $request->input('skill_tags', [])
+        );
 
-        return response()->json($opening->load(['categories', 'locations']), 201);
+        return response()->json($opening->load(['categories', 'locations', 'skillTags']), 201);
     }
 
     public function show(Opening $opening): JsonResponse
     {
-        return response()->json($opening->load(['categories', 'locations', 'applicants']));
+        return response()->json($opening->load(['categories', 'locations', 'applicants.stage', 'skillTags']));
     }
 
     public function update(UpdateOpeningRequest $request, Opening $opening): JsonResponse
@@ -46,9 +51,14 @@ class OpeningController extends Controller
         Gate::authorize('update', $opening);
 
         $opening->update($request->validated());
-        $this->syncRelations($opening, $request->input('categories', []), $request->input('locations', []));
+        $this->syncRelations(
+            $opening,
+            $request->input('categories', []),
+            $request->input('locations', []),
+            $request->input('skill_tags', [])
+        );
 
-        return response()->json($opening->load(['categories', 'locations']));
+        return response()->json($opening->load(['categories', 'locations', 'skillTags']));
     }
 
     public function destroy(Opening $opening): JsonResponse
@@ -60,7 +70,7 @@ class OpeningController extends Controller
         return response()->json([], 204);
     }
 
-    protected function syncRelations(Opening $opening, array $categories, array $locations): void
+    protected function syncRelations(Opening $opening, array $categories, array $locations, array $skillTags): void
     {
         if (!empty($categories)) {
             $opening->categories()->sync($categories);
@@ -68,6 +78,10 @@ class OpeningController extends Controller
 
         if (!empty($locations)) {
             $opening->locations()->sync($locations);
+        }
+
+        if (!empty($skillTags)) {
+            $opening->skillTags()->sync($skillTags);
         }
     }
 }

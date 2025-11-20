@@ -40,9 +40,11 @@ php artisan vendor:publish --provider="JobsLaravelPackage\\JobsServiceProvider" 
 ## Features
 
 - Jobs CRUD via REST API (`/api/jobs`) with Sanctum authentication.
+- ATS-ready application tracking with default stages (Applied → Screening → Interview → Offer → Hired/Rejected) and API endpoints to move applicants.
+- Skill tags taxonomy with seed data and filtering on the public listings.
 - Web routes for browsing jobs, viewing details, applying, and bookmarking.
-- Eloquent models for openings, categories, locations, expert levels, qualifications, and bookmarks.
-- Database migrations and seeders for default taxonomies.
+- Eloquent models for openings, categories, locations, expert levels, qualifications, skill tags, ATS stages, and bookmarks.
+- Database migrations and seeders for default taxonomies and ATS defaults.
 - Simple Blade templates for listing, detail, and apply flows.
 
 ## Configuration

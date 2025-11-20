@@ -17,6 +17,12 @@
                 <option value="Part time" @selected(($filters['type'] ?? null) === 'Part time')>Part time</option>
                 <option value="Contract" @selected(($filters['type'] ?? null) === 'Contract')>Contract</option>
             </select>
+            <select name="skill">
+                <option value="">Any skill</option>
+                @foreach($skillTags as $skill)
+                    <option value="{{ $skill->slug }}" @selected(($filters['skill'] ?? null) === $skill->slug)>{{ $skill->name }}</option>
+                @endforeach
+            </select>
             <label>
                 <input type="checkbox" name="featured" value="1" @checked(!empty($filters['featured']))>
                 Featured only
@@ -34,6 +40,9 @@
                 <p class="job-tags">
                     @foreach($job->categories as $category)
                         <span class="tag">{{ $category->title }}</span>
+                    @endforeach
+                    @foreach($job->skillTags as $skill)
+                        <span class="tag" style="background:#e0e7ff; color:#1f2937;">{{ $skill->name }}</span>
                     @endforeach
                 </p>
                 <a class="button" href="{{ route('jobs.show', $job) }}">View details</a>

@@ -5,7 +5,9 @@ namespace JobsLaravelPackage;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use JobsLaravelPackage\Models\Opening;
+use JobsLaravelPackage\Models\UserJob;
 use JobsLaravelPackage\Policies\OpeningPolicy;
+use JobsLaravelPackage\Policies\UserJobPolicy;
 
 class JobsServiceProvider extends ServiceProvider
 {
@@ -46,5 +48,6 @@ class JobsServiceProvider extends ServiceProvider
         ], 'jobs-database');
 
         Gate::policy(Opening::class, OpeningPolicy::class);
+        Gate::policy(UserJob::class, UserJobPolicy::class);
     }
 }

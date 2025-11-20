@@ -70,4 +70,14 @@ class Opening extends Model
     {
         return $this->hasMany(UserJob::class, 'opening_id');
     }
+
+    public function skillTags(): BelongsToMany
+    {
+        return $this->belongsToMany(SkillTag::class, 'opening_skill_tag');
+    }
+
+    public function stages(): HasMany
+    {
+        return $this->hasMany(AtsStage::class, 'opening_id')->orderBy('position');
+    }
 }

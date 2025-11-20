@@ -11,6 +11,9 @@
             @foreach($job->categories as $category)
                 <span class="tag">{{ $category->title }}</span>
             @endforeach
+            @foreach($job->skillTags as $skill)
+                <span class="tag" style="background:#e0e7ff; color:#1f2937;">{{ $skill->name }}</span>
+            @endforeach
         </div>
 
         <div style="margin-top: 1rem;">

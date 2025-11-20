@@ -14,5 +14,6 @@ return [
         'featured_days' => 30,
         'max_locations' => 3,
         'max_tags' => 6,
+        'max_skill_tags' => 10,
     ],
 ];

@@ -8,6 +8,7 @@ use JobsLaravelPackage\Models\Category;
 use JobsLaravelPackage\Models\ExpertLevel;
 use JobsLaravelPackage\Models\Location;
 use JobsLaravelPackage\Models\Qualification;
+use JobsLaravelPackage\Models\SkillTag;
 
 class TaxonomyController extends Controller
 {
@@ -29,6 +30,13 @@ class TaxonomyController extends Controller
     {
         return response()->json(
             Location::with('children')->get()
+        );
+    }
+
+    public function skills(): JsonResponse
+    {
+        return response()->json(
+            SkillTag::orderBy('name')->get()
         );
     }
 
