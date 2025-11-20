@@ -4,6 +4,7 @@ namespace Jobs\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Jobs\Events\JobPublished;
 use Jobs\Http\Requests\JobRequest;
 use Jobs\Models\Job;
 
@@ -14,14 +15,30 @@ class JobController extends Controller
         $query = Job::with('company')->published();
 
         if ($request->filled('location')) {
-            $query->where('location', 'like', '%' . $request->string('location') . '%');
+            $query->where('location', 'like', '%' . (string) $request->string('location') . '%');
         }
 
         if ($request->filled('keyword')) {
-            $query->where('title', 'like', '%' . $request->string('keyword') . '%');
+            $query->where('title', 'like', '%' . (string) $request->string('keyword') . '%');
         }
 
-        return response()->json($query->paginate());
+        if ($request->filled('search')) {
+            $term = (string) $request->string('search');
+            $query->where(function ($q) use ($term) {
+                $q->where('title', 'like', '%' . $term . '%')
+                    ->orWhere('description', 'like', '%' . $term . '%');
+            });
+        }
+
+        if ($request->boolean('featured')) {
+            $query->where('is_featured', true);
+        }
+
+        if ($request->filled('sort') && $request->string('sort') === 'recent') {
+            $query->latest('published_at');
+        }
+
+        return response()->json($query->paginate($request->integer('per_page', 15)));
     }
 
     public function show(Job $job)
@@ -33,12 +50,16 @@ class JobController extends Controller
     {
         $job = Job::create($request->validated());
 
+        $this->dispatchPublishedEvent($job);
+
         return response()->json($job, 201);
     }
 
     public function update(JobRequest $request, Job $job)
     {
         $job->update($request->validated());
+
+        $this->dispatchPublishedEvent($job);
 
         return response()->json($job);
     }
@@ -48,5 +69,12 @@ class JobController extends Controller
         $job->delete();
 
         return response()->json(['message' => 'Job removed']);
+    }
+
+    protected function dispatchPublishedEvent(Job $job): void
+    {
+        if ($job->status === 'published') {
+            JobPublished::dispatch($job);
+        }
     }
 }

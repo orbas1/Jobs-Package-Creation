@@ -36,6 +36,13 @@ php artisan migrate
 php artisan db:seed --class="Jobs\\Database\\Seeders\\JobsDatabaseSeeder"
 ```
 
+5. Wire into your social features:
+
+- Subscribe to the `Jobs\\Events\\JobPublished` and `Jobs\\Events\\ApplicationSubmitted` events to push job and application
+  activity into your existing timelines, search indexers, or notification pipelines.
+- Add the published routes to your feed/search middleware so jobs can be discovered alongside posts.
+- Grant permissions to your admin roles so they can moderate job listings and review application status updates.
+
 ## Features
 
 - Job postings with publishing windows and featured listings
@@ -47,3 +54,5 @@ php artisan db:seed --class="Jobs\\Database\\Seeders\\JobsDatabaseSeeder"
 - Interview scheduling records
 - API and web routes for job browsing and management
 - Blade views, translations, and configuration publishing stubs
+- Event hooks for live feeds, notifications, and search indexing
+- Endpoints tuned for mobile clients consuming the Flutter addon

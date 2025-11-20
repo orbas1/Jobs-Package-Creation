@@ -5,8 +5,11 @@ Mobile addon that mirrors the Laravel jobs package for job listings, application
 ## Getting started
 
 ```dart
-final menu = JobsMenuBuilder(baseUrl: 'https://your-api.test');
+final menu = JobsMenuBuilder(
+  baseUrl: 'https://your-api.test',
+  headers: {'Authorization': 'Bearer <token>'},
+);
 final tabs = menu.buildScreens();
 ```
 
-The addon ships with repositories and models to call the Laravel package endpoints. Extend the UI or state notifiers to match your host design system.
+The addon ships with repositories and models to call the Laravel package endpoints. Extend the UI or state notifiers to match your host design system, and feed `JobsApiClient` into your analytics or notification pipelines to keep live feeds and recommendations current.

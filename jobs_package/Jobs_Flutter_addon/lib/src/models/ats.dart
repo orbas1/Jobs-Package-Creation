@@ -8,7 +8,7 @@ class AtsStage {
   factory AtsStage.fromJson(Map<String, dynamic> json) => AtsStage(
         id: json['id'] as int,
         name: json['name'] as String,
-        order: json['order'] as int? ?? 0,
+        order: json['order'] as int? ?? json['position'] as int? ?? 0,
       );
 
   Map<String, dynamic> toJson() => {

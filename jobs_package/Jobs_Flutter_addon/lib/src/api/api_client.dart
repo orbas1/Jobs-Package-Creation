@@ -5,43 +5,70 @@ import 'package:meta/meta.dart';
 
 /// Lightweight API client tailored for the Laravel jobs package endpoints.
 class JobsApiClient {
-  JobsApiClient({required this.baseUrl, http.Client? client})
-      : _client = client ?? http.Client();
+  JobsApiClient({
+    required this.baseUrl,
+    http.Client? client,
+    Map<String, String>? defaultHeaders,
+    this.timeout = const Duration(seconds: 30),
+  })  : _client = client ?? http.Client(),
+        _defaultHeaders = {
+          'Content-Type': 'application/json',
+          if (defaultHeaders != null) ...defaultHeaders,
+        };
 
   final String baseUrl;
   final http.Client _client;
+  final Map<String, String> _defaultHeaders;
+  final Duration timeout;
 
   Uri _uri(String path, [Map<String, String>? query]) {
-    return Uri.parse(baseUrl).replace(path: path, queryParameters: query);
+    final base = Uri.parse(baseUrl);
+    final cleanedPath = path.startsWith('/') ? path : '/$path';
+    return base.replace(path: cleanedPath, queryParameters: query);
   }
 
   Future<Map<String, dynamic>> getJson(String path,
-      {Map<String, String>? query}) async {
-    final response = await _client.get(_uri(path, query));
+      {Map<String, String>? query, Map<String, String>? headers}) async {
+    final response = await _client
+        .get(_uri(path, query), headers: {..._defaultHeaders, ...?headers})
+        .timeout(timeout);
     _throwIfInvalid(response);
     return _decode(response);
   }
 
   Future<Map<String, dynamic>> postJson(String path,
-      {Map<String, String>? query, Map<String, dynamic>? body}) async {
-    final response = await _client.post(
-      _uri(path, query),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(body ?? <String, dynamic>{}),
-    );
+      {Map<String, String>? query,
+      Map<String, dynamic>? body,
+      Map<String, String>? headers}) async {
+    final response = await _client
+        .post(
+          _uri(path, query),
+          headers: {..._defaultHeaders, ...?headers},
+          body: jsonEncode(body ?? <String, dynamic>{}),
+        )
+        .timeout(timeout);
     _throwIfInvalid(response);
     return _decode(response);
   }
 
   Future<Map<String, dynamic>> putJson(String path,
-      {Map<String, dynamic>? body}) async {
-    final response = await _client.put(
-      _uri(path),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(body ?? <String, dynamic>{}),
-    );
+      {Map<String, dynamic>? body, Map<String, String>? headers}) async {
+    final response = await _client
+        .put(
+          _uri(path),
+          headers: {..._defaultHeaders, ...?headers},
+          body: jsonEncode(body ?? <String, dynamic>{}),
+        )
+        .timeout(timeout);
     _throwIfInvalid(response);
     return _decode(response);
+  }
+
+  Future<void> delete(String path, {Map<String, String>? headers}) async {
+    final response = await _client
+        .delete(_uri(path), headers: {..._defaultHeaders, ...?headers})
+        .timeout(timeout);
+    _throwIfInvalid(response);
   }
 
   @visibleForTesting

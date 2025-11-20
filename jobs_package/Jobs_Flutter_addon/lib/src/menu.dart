@@ -8,12 +8,13 @@ import 'data/subscription_repository.dart';
 
 /// Menu helper that wires the jobs addon into a tab or drawer structure.
 class JobsMenuBuilder {
-  JobsMenuBuilder({required this.baseUrl});
+  JobsMenuBuilder({required this.baseUrl, this.headers});
 
   final String baseUrl;
+  final Map<String, String>? headers;
 
   List<Widget> buildScreens() {
-    final client = JobsApiClient(baseUrl: baseUrl);
+    final client = JobsApiClient(baseUrl: baseUrl, defaultHeaders: headers);
     final jobsRepo = JobsRepository(client);
     final profileRepo = ProfileRepository(client);
     final subscriptionRepo = SubscriptionRepository(client);

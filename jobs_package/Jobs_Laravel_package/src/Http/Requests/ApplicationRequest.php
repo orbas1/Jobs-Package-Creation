@@ -20,6 +20,16 @@ class ApplicationRequest extends FormRequest
             'cv_template_id' => ['nullable', 'integer'],
             'resume_path' => ['nullable', 'string'],
             'notes' => ['nullable', 'string'],
+            'status' => ['nullable', 'string', 'max:50'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $job = $this->route('job');
+
+        if ($job) {
+            $this->merge(['job_id' => $job instanceof \Illuminate\Database\Eloquent\Model ? $job->getKey() : $job]);
+        }
     }
 }
