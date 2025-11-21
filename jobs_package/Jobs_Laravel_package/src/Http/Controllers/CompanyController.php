@@ -5,6 +5,7 @@ namespace Jobs\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Jobs\Models\CompanyProfile;
+use Jobs\Support\Analytics\JobsAnalytics;
 
 class CompanyController extends Controller
 {
@@ -28,6 +29,11 @@ class CompanyController extends Controller
         ]);
 
         $company = CompanyProfile::create($data);
+
+        JobsAnalytics::dispatch('employer_profile_completed', [
+            'company_id' => $company->id,
+            'user_id' => $company->user_id,
+        ]);
 
         return response()->json($company, 201);
     }

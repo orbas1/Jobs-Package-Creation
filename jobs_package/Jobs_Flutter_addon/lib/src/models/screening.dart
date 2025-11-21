@@ -7,7 +7,7 @@ class ScreeningQuestion {
   factory ScreeningQuestion.fromJson(Map<String, dynamic> json) =>
       ScreeningQuestion(
         id: json['id'] as int,
-        prompt: json['prompt'] as String,
+        prompt: json['question'] as String? ?? json['prompt'] as String,
       );
 
   Map<String, dynamic> toJson() => {
@@ -24,12 +24,13 @@ class ScreeningAnswer {
 
   factory ScreeningAnswer.fromJson(Map<String, dynamic> json) =>
       ScreeningAnswer(
-        questionId: json['question_id'] as int,
+        questionId:
+            (json['screening_question_id'] as int?) ?? json['question_id'] as int,
         answer: json['answer'] as String,
       );
 
   Map<String, dynamic> toJson() => {
-        'question_id': questionId,
+        'screening_question_id': questionId,
         'answer': answer,
       };
 }

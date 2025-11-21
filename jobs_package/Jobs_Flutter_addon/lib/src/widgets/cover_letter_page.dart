@@ -36,7 +36,11 @@ class _CoverLetterPageState extends State<CoverLetterPage> {
     try {
       final saved = await widget.profileRepository.saveCoverLetter(
         candidateId: widget.candidateId,
-        coverLetter: CoverLetter(id: 0, content: _controller.text),
+        coverLetter: CoverLetter(
+          candidateId: widget.candidateId,
+          title: 'Cover Letter',
+          body: _controller.text,
+        ),
       );
       setState(() => _message = 'Saved cover letter ${saved.id}');
     } catch (e) {

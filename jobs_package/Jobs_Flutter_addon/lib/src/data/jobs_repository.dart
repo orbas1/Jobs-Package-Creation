@@ -11,7 +11,9 @@ class JobsRepository {
       if (query != null) 'search': query,
       'per_page': '50',
     });
-    final list = payload['data'] as List<dynamic>? ?? [];
+    final data = payload['data'];
+    final list =
+        (data is Map<String, dynamic> ? data['data'] : data) as List<dynamic>? ?? [];
     return list.map((job) => Job.fromJson(job as Map<String, dynamic>)).toList();
   }
 
@@ -46,7 +48,9 @@ class JobsRepository {
       if (companyId != null) 'company_id': '$companyId',
       'per_page': '50',
     });
-    final list = (payload['data'] ?? payload) as List<dynamic>? ?? [];
+    final data = payload['data'];
+    final list =
+        (data is Map<String, dynamic> ? data['data'] : data) as List<dynamic>? ?? [];
     return list
         .map((app) => JobApplication.fromJson(app as Map<String, dynamic>))
         .toList();
@@ -79,10 +83,9 @@ class JobsRepository {
     final payload = await _apiClient.postJson(
       '/api/applications/$applicationId/interviews',
       body: {
-        'start': start.toIso8601String(),
-        'end': end.toIso8601String(),
+        'scheduled_at': start.toIso8601String(),
         'location': location,
-        'link': link,
+        'meeting_link': link,
       },
     );
     return InterviewSchedule.fromJson(payload['data'] as Map<String, dynamic>);

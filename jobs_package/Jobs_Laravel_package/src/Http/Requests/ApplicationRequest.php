@@ -21,6 +21,9 @@ class ApplicationRequest extends FormRequest
             'resume_path' => ['nullable', 'string'],
             'notes' => ['nullable', 'string'],
             'status' => ['nullable', 'string', 'max:50'],
+            'answers' => ['sometimes', 'array'],
+            'answers.*.screening_question_id' => ['nullable', 'integer'],
+            'answers.*.answer' => ['nullable'],
         ];
     }
 

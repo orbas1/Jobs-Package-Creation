@@ -10,14 +10,17 @@ class ApplicationsService {
 
   Future<List<JobApplication>> fetchApplications() async {
     final payload = await client.getJson('/api/applications');
-    return (payload['data'] as List<dynamic>? ?? [])
+    final data = payload['data'];
+    final list =
+        (data is Map<String, dynamic> ? data['data'] : data) as List<dynamic>? ?? [];
+    return list
         .map((e) => JobApplication.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 
   Future<JobApplication> fetchApplication(int id) async {
     final payload = await client.getJson('/api/applications/$id');
-    return JobApplication.fromJson(payload['data'] as Map<String, dynamic>);
+    return JobApplication.fromJson((payload['data'] ?? payload) as Map<String, dynamic>);
   }
 
   Future<void> submitApplication(Map<String, dynamic> body) async {
@@ -30,12 +33,14 @@ class ApplicationsService {
 
   Future<List<InterviewInvite>> fetchInterviews(int applicationId) async {
     final payload = await client.getJson('/api/applications/$applicationId/interviews');
-    return (payload['data'] as List<dynamic>? ?? [])
+    final data = payload['data'] as List<dynamic>? ?? [];
+    return data
         .map((e) => InterviewInvite.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 
   Future<void> moveStage(int applicationId, AtsStage stage) async {
-    await client.putJson('/api/applications/$applicationId/stage', body: stage.toJson());
+    await client.postJson('/api/applications/$applicationId/ats/move',
+        body: {'stage_id': stage.id});
   }
 }

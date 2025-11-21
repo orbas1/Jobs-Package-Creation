@@ -21,4 +21,9 @@ class ScreeningQuestion extends Model
         'options' => 'array',
         'is_required' => 'boolean',
     ];
+
+    public function job()
+    {
+        return $this->belongsTo(Job::class);
+    }
 }

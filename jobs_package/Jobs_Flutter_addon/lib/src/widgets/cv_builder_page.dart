@@ -42,12 +42,15 @@ class _CvBuilderPageState extends State<CvBuilderPage> {
       final saved = await widget.profileRepository.saveCv(
         candidateId: widget.candidateId,
         cv: CvDocument(
-          id: 0,
-          url: _urlController.text,
-          template: _templateController.text,
+          candidateId: widget.candidateId,
+          title: 'CV - ${_templateController.text}',
+          content: {
+            'template': _templateController.text,
+            'url': _urlController.text,
+          },
         ),
       );
-      setState(() => _message = 'Saved CV to ${saved.url}');
+      setState(() => _message = 'Saved CV ${saved.title}');
     } catch (e) {
       setState(() => _message = e.toString());
     } finally {

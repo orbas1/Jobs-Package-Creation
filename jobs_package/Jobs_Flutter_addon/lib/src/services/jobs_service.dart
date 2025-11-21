@@ -12,21 +12,27 @@ class JobsService {
 
   Future<List<Job>> fetchJobs({String? keyword, String? location}) async {
     final payload = await client.getJson('/api/jobs', query: {
-      if (keyword?.isNotEmpty == true) 'q': keyword!,
+      if (keyword?.isNotEmpty == true) 'search': keyword!,
       if (location?.isNotEmpty == true) 'location': location!,
+      'per_page': '50',
     });
-    final jobs = payload['data'] as List<dynamic>? ?? [];
+    final data = payload['data'];
+    final jobs =
+        (data is Map<String, dynamic> ? data['data'] : data) as List<dynamic>? ?? [];
     return jobs.map((e) => Job.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   Future<Job> fetchJob(int id) async {
     final payload = await client.getJson('/api/jobs/$id');
-    return Job.fromJson(payload['data'] as Map<String, dynamic>);
+    return Job.fromJson((payload['data'] ?? payload) as Map<String, dynamic>);
   }
 
   Future<List<Job>> fetchSavedJobs() async {
     final payload = await client.getJson('/api/jobs/saved');
-    return (payload['data'] as List<dynamic>? ?? [])
+    final data = payload['data'];
+    final list =
+        (data is Map<String, dynamic> ? data['data'] : data) as List<dynamic>? ?? [];
+    return list
         .map((e) => Job.fromJson(e as Map<String, dynamic>))
         .toList();
   }
@@ -37,16 +43,22 @@ class JobsService {
 
   Future<List<Job>> fetchSimilar(Job job) async {
     final payload = await client.getJson('/api/jobs/${job.id}/similar');
-    return (payload['data'] as List<dynamic>? ?? [])
+    final data = payload['data'] as List<dynamic>? ?? [];
+    return data
         .map((e) => Job.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 
   Future<List<Company>> fetchRecommendedCompanies() async {
-    final payload = await client.getJson('/api/jobs/recommended-companies');
-    return (payload['data'] as List<dynamic>? ?? [])
-        .map((e) => Company.fromJson(e as Map<String, dynamic>))
+    final payload = await client.getJson('/api/jobs', query: {'featured': '1', 'per_page': '20'});
+    final data = payload['data'];
+    final jobs =
+        (data is Map<String, dynamic> ? data['data'] : data) as List<dynamic>? ?? [];
+    final companies = jobs
+        .map((e) => Company.fromJson((e as Map<String, dynamic>)['company'] as Map<String, dynamic>))
         .toList();
+    final seen = <int>{};
+    return companies.where((c) => seen.add(c.id)).toList();
   }
 
   Future<List<ScreeningQuestion>> fetchScreeningQuestions(int jobId) async {
