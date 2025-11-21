@@ -17,21 +17,23 @@ class ProfileRepository {
   }
 
   Future<CvDocument> saveCv({required int candidateId, required CvDocument cv}) async {
-    final payload = await _apiClient.putJson(
-      '/api/candidates/$candidateId/cv',
-      body: cv.toJson(),
-    );
-    return CvDocument.fromJson(payload['data'] as Map<String, dynamic>);
+    final path = cv.id == null ? '/api/cvs' : '/api/cvs/${cv.id}';
+    final payload = cv.id == null
+        ? await _apiClient.postJson(path, body: cv.toJson())
+        : await _apiClient.putJson(path, body: cv.toJson());
+    return CvDocument.fromJson((payload['data'] ?? payload) as Map<String, dynamic>);
   }
 
   Future<CoverLetter> saveCoverLetter({
     required int candidateId,
     required CoverLetter coverLetter,
   }) async {
-    final payload = await _apiClient.putJson(
-      '/api/candidates/$candidateId/cover-letter',
-      body: coverLetter.toJson(),
-    );
-    return CoverLetter.fromJson(payload['data'] as Map<String, dynamic>);
+    final path = coverLetter.id == null
+        ? '/api/cover-letters'
+        : '/api/cover-letters/${coverLetter.id}';
+    final payload = coverLetter.id == null
+        ? await _apiClient.postJson(path, body: coverLetter.toJson())
+        : await _apiClient.putJson(path, body: coverLetter.toJson());
+    return CoverLetter.fromJson((payload['data'] ?? payload) as Map<String, dynamic>);
   }
 }

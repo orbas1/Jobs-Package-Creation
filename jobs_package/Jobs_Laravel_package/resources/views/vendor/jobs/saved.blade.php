@@ -15,15 +15,16 @@
 <div class="container py-4" id="saved-jobs-page">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h4 mb-0">Saved Jobs</h1>
-        <span class="text-muted">{{ count($savedJobs ?? []) }} saved</span>
+        <span class="text-muted">{{ $savedJobs->total() ?? 0 }} saved</span>
     </div>
     <div id="saved-jobs-list">
-        @forelse(($savedJobs ?? []) as $job)
-            @include('vendor.jobs.components.job_card', ['job' => $job, 'showActions' => true])
+        @forelse(($savedJobs ?? []) as $bookmark)
+            @include('vendor.jobs.components.job_card', ['job' => $bookmark->job, 'showActions' => true])
         @empty
             <div class="alert alert-light border">You haven't saved any jobs yet.</div>
         @endforelse
     </div>
+    @include('vendor.jobs.components.pagination', ['paginator' => $savedJobs])
 </div>
 @endsection
 

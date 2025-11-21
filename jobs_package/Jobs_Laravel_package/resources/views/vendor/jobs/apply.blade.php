@@ -20,8 +20,10 @@
             <div class="progress mb-3" style="height: 6px;">
                 <div class="progress-bar" id="apply-progress" style="width:20%;"></div>
             </div>
-            <form id="application-form" method="post" action="{{ route('jobs.apply', $job->id ?? null) }}" novalidate>
+            <form id="application-form" method="post" action="{{ route('jobs.apply.submit', $job->id ?? null) }}" novalidate>
                 @csrf
+                <input type="hidden" name="job_id" value="{{ $job->id }}">
+                <input type="hidden" name="candidate_id" value="{{ auth()->id() }}">
                 <div class="step" data-step="1">
                     <h5 class="mb-3">Profile & Contact</h5>
                     <div class="mb-3">
@@ -41,9 +43,9 @@
                     <h5 class="mb-3">CV Selection</h5>
                     <div class="mb-3">
                         <label class="form-label">Choose existing CV</label>
-                        <select class="form-select" name="cv_id">
+                        <select class="form-select" name="cv_template_id">
                             @foreach(($cvs ?? []) as $cv)
-                                <option value="{{ $cv->id }}">{{ $cv->name }}</option>
+                                <option value="{{ $cv->id }}">{{ $cv->title }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -55,31 +57,32 @@
                 </div>
                 <div class="step d-none" data-step="3">
                     <h5 class="mb-3">Cover Letter</h5>
-                    <textarea class="form-control" rows="6" name="cover_letter" placeholder="Write a short message"></textarea>
+                    <textarea class="form-control" rows="6" name="notes" placeholder="Write a short message"></textarea>
                     <button type="button" class="btn btn-outline-secondary btn-sm mt-2" id="generate-cover-letter">Generate from template</button>
                 </div>
                 <div class="step d-none" data-step="4">
                     <h5 class="mb-3">Screening Questions</h5>
                     @forelse(($screeningQuestions ?? []) as $question)
                         <div class="mb-3">
-                            <label class="form-label">{{ $question['prompt'] ?? 'Question' }}</label>
+                            <input type="hidden" name="answers[{{ $loop->index }}][screening_question_id]" value="{{ $question->id }}">
+                            <label class="form-label">{{ $question->question ?? 'Question' }}</label>
                             @if(($question['type'] ?? '') === 'multiple_choice')
-                                <select class="form-select" name="screening[{{ $loop->index }}]">
+                                <select class="form-select" name="answers[{{ $loop->index }}][answer]">
                                     @foreach($question['options'] ?? [] as $option)
                                         <option value="{{ $option }}">{{ $option }}</option>
                                     @endforeach
                                 </select>
                             @elseif(($question['type'] ?? '') === 'boolean')
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="screening[{{ $loop->index }}]" value="yes" id="q{{ $loop->index }}yes">
+                                    <input class="form-check-input" type="radio" name="answers[{{ $loop->index }}][answer]" value="yes" id="q{{ $loop->index }}yes">
                                     <label class="form-check-label" for="q{{ $loop->index }}yes">Yes</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="screening[{{ $loop->index }}]" value="no" id="q{{ $loop->index }}no">
+                                    <input class="form-check-input" type="radio" name="answers[{{ $loop->index }}][answer]" value="no" id="q{{ $loop->index }}no">
                                     <label class="form-check-label" for="q{{ $loop->index }}no">No</label>
                                 </div>
                             @else
-                                <textarea class="form-control" name="screening[{{ $loop->index }}]" rows="3"></textarea>
+                                <textarea class="form-control" name="answers[{{ $loop->index }}][answer]" rows="3"></textarea>
                             @endif
                         </div>
                     @empty
@@ -107,7 +110,7 @@
                     <h6 class="text-muted">Summary</h6>
                     <p class="mb-1 fw-semibold">{{ $job->title ?? 'Role' }}</p>
                     <p class="text-muted small mb-1">{{ $job->company->name ?? '' }}</p>
-                    <p class="text-muted small mb-0">{{ $job->location ?? '' }} · {{ $job->type ?? '' }} · {{ $job->salary ?? '' }}</p>
+                    <p class="text-muted small mb-0">{{ $job->location ?? '' }} · {{ $job->employment_type ?? '' }} · {{ $job->salary_label ?? '' }}</p>
                 </div>
             </div>
         </div>

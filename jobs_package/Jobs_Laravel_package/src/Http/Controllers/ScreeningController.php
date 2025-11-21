@@ -7,6 +7,7 @@ use Illuminate\Routing\Controller;
 use Jobs\Models\JobApplication;
 use Jobs\Models\ScreeningAnswer;
 use Jobs\Models\ScreeningQuestion;
+use Jobs\Support\Analytics\JobsAnalytics;
 
 class ScreeningController extends Controller
 {
@@ -46,6 +47,11 @@ class ScreeningController extends Controller
         });
 
         $jobApplication->update(['screening_score' => $created->count()]);
+
+        JobsAnalytics::dispatch('screening_questions_answered', [
+            'application_id' => $jobApplication->id,
+            'count' => $created->count(),
+        ]);
 
         return response()->json($created);
     }

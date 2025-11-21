@@ -7,22 +7,25 @@ class CvService {
   final JobsApiClient client;
 
   Future<List<CvDocument>> fetchCvs() async {
-    final payload = await client.getJson('/api/cv');
-    return (payload['data'] as List<dynamic>? ?? [])
+    final payload = await client.getJson('/api/cvs');
+    final data = payload['data'];
+    final list =
+        (data is Map<String, dynamic> ? data['data'] : data) as List<dynamic>? ?? [];
+    return list
         .map((e) => CvDocument.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 
   Future<CvDocument> fetchCv(int id) async {
-    final payload = await client.getJson('/api/cv/$id');
-    return CvDocument.fromJson(payload['data'] as Map<String, dynamic>);
+    final payload = await client.getJson('/api/cvs/$id');
+    return CvDocument.fromJson((payload['data'] ?? payload) as Map<String, dynamic>);
   }
 
   Future<void> saveCv(CvDocument cv) async {
-    await client.postJson('/api/cv/${cv.id}', body: cv.toJson());
+    await client.postJson('/api/cvs', body: cv.toJson());
   }
 
   Future<void> deleteCv(int id) async {
-    await client.delete('/api/cv/$id');
+    await client.delete('/api/cvs/$id');
   }
 }

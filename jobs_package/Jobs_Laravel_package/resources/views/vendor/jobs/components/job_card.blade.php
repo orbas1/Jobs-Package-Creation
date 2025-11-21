@@ -8,9 +8,9 @@
                     <div class="text-muted small">{{ $job->company->name ?? 'Company' }}</div>
                 </div>
             </div>
-            <div class="text-muted small">{{ $job->location ?? 'Remote' }} · {{ $job->salary ?? 'Competitive' }}</div>
+            <div class="text-muted small">{{ $job->location ?? 'Remote' }} · {{ $job->salary_label ?? 'Competitive' }}</div>
             <div class="d-flex flex-wrap gap-2 mt-2">
-                @foreach(($job->tags ?? ['Remote']) as $tag)
+                @foreach(($job->tag_list ?? ['Remote']) as $tag)
                     <span class="badge bg-light text-dark">{{ $tag }}</span>
                 @endforeach
             </div>

@@ -5,6 +5,7 @@ namespace Jobs\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Jobs\Models\CoverLetter;
+use Jobs\Support\Analytics\JobsAnalytics;
 
 class CoverLetterController extends Controller
 {
@@ -30,6 +31,35 @@ class CoverLetterController extends Controller
 
         $letter = CoverLetter::create($data);
 
+        JobsAnalytics::dispatch('cover_letter_created', [
+            'cover_letter_id' => $letter->id,
+            'candidate_id' => $letter->candidate_id,
+        ]);
+
         return response()->json($letter, 201);
+    }
+
+    public function show(CoverLetter $coverLetter)
+    {
+        return response()->json(['data' => $coverLetter]);
+    }
+
+    public function update(Request $request, CoverLetter $coverLetter)
+    {
+        $data = $request->validate([
+            'title' => ['sometimes', 'string', 'max:255'],
+            'body' => ['sometimes', 'string'],
+        ]);
+
+        $coverLetter->update($data);
+
+        return response()->json(['data' => $coverLetter]);
+    }
+
+    public function destroy(CoverLetter $coverLetter)
+    {
+        $coverLetter->delete();
+
+        return response()->json(['message' => 'Cover letter removed']);
     }
 }
