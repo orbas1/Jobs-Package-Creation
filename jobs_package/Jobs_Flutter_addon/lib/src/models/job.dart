@@ -11,6 +11,9 @@ class Job {
     required this.salary,
     required this.company,
     required this.publishedAt,
+    this.status,
+    this.applicationsCount,
+    this.tags = const <String>[],
     this.screeningQuestions = const <ScreeningQuestion>[],
   });
 
@@ -22,6 +25,9 @@ class Job {
   final String salary;
   final Company company;
   final DateTime publishedAt;
+  final String? status;
+  final int? applicationsCount;
+  final List<String> tags;
   final List<ScreeningQuestion> screeningQuestions;
 
   factory Job.fromJson(Map<String, dynamic> json) => Job(
@@ -33,6 +39,9 @@ class Job {
         salary: json['salary'] as String? ?? '',
         company: Company.fromJson(json['company'] as Map<String, dynamic>),
         publishedAt: DateTime.parse(json['published_at'] as String),
+        status: json['status'] as String?,
+        applicationsCount: json['applications_count'] as int?,
+        tags: (json['tags'] as List<dynamic>? ?? []).cast<String>(),
         screeningQuestions: (json['screening_questions'] as List<dynamic>? ?? [])
             .map((e) => ScreeningQuestion.fromJson(e as Map<String, dynamic>))
             .toList(),
@@ -47,6 +56,9 @@ class Job {
         'salary': salary,
         'company': company.toJson(),
         'published_at': publishedAt.toIso8601String(),
+        'status': status,
+        'applications_count': applicationsCount,
+        'tags': tags,
         'screening_questions':
             screeningQuestions.map((question) => question.toJson()).toList(),
       };

@@ -6,6 +6,7 @@ class CandidateProfile {
     required this.location,
     this.summary,
     this.cvUrl,
+    this.stage,
   });
 
   final int id;
@@ -14,6 +15,7 @@ class CandidateProfile {
   final String location;
   final String? summary;
   final String? cvUrl;
+  final String? stage;
 
   factory CandidateProfile.fromJson(Map<String, dynamic> json) => CandidateProfile(
         id: json['id'] as int,
@@ -22,6 +24,7 @@ class CandidateProfile {
         location: json['location'] as String? ?? 'Remote',
         summary: json['summary'] as String?,
         cvUrl: json['cv_url'] as String?,
+        stage: json['stage'] as String?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -31,5 +34,6 @@ class CandidateProfile {
         'location': location,
         'summary': summary,
         'cv_url': cvUrl,
+        'stage': stage,
       };
 }
